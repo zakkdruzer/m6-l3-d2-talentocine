@@ -226,6 +226,10 @@ const mensajeBoton = computed(() => {
 
 <template>
   <div class="app">
+    <div class="bg-effects">
+      <span class="orb orb--pink"></span>
+      <span class="orb orb--blue"></span>
+    </div>
     <div class="cine">
       <section class="sala">
         <div class="pantalla">PANTALLA</div>
