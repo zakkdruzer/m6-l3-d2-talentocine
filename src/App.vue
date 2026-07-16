@@ -103,7 +103,11 @@ const total = computed(() => {
 })
 
 const puedeComprar = computed(() => {
-  return cantidad.value > 0 && cliente.nombre.trim().length > 0
+  return (
+    cantidad.value > 0 &&
+    cantidad.value <= 6 &&
+    cliente.nombre.trim().length > 0
+  )
 })
 
 watch(cantidad, (nuevaCantidad) => {
@@ -124,6 +128,18 @@ function vaciarSeleccion() {
 
   comprado.value = false
 }
+
+const mensajeBoton = computed(() => {
+  if (cantidad.value === 0 || cliente.nombre.trim().length === 0) {
+    return 'Elige butacas y escribe tu nombre'
+  }
+
+  if (cantidad.value > 6) {
+    return 'Máximo 6 butacas'
+  }
+
+  return 'Comprar'
+})
 </script>
 
 <template>
@@ -133,25 +149,14 @@ function vaciarSeleccion() {
         <div class="pantalla">PANTALLA</div>
 
         <div class="mapa">
-          <div
-            v-for="fila in filasAgrupadas"
-            :key="fila.letra"
-            class="fila"
-          >
+          <div v-for="fila in filasAgrupadas" :key="fila.letra" class="fila">
             <div class="fila-label">{{ fila.letra }}</div>
 
-            <button
-              v-for="asiento in fila.asientos"
-              :key="asiento.id"
-              class="asiento"
-              :class="{
-                'asiento--libre': asiento.estado === 'libre',
-                'asiento--elegido': asiento.estado === 'elegido',
-                'asiento--ocupado': asiento.estado === 'ocupado'
-              }"
-              :disabled="asiento.estado === 'ocupado'"
-              @click="toggleAsiento(asiento.id)"
-            >
+            <button v-for="asiento in fila.asientos" :key="asiento.id" class="asiento" :class="{
+              'asiento--libre': asiento.estado === 'libre',
+              'asiento--elegido': asiento.estado === 'elegido',
+              'asiento--ocupado': asiento.estado === 'ocupado'
+            }" :disabled="asiento.estado === 'ocupado'" @click="toggleAsiento(asiento.id)">
               {{ asiento.col }}
             </button>
           </div>
@@ -185,11 +190,7 @@ function vaciarSeleccion() {
         </p>
 
         <div v-else class="chips">
-          <span
-            v-for="asiento in elegidos"
-            :key="asiento.id"
-            class="chip"
-          >
+          <span v-for="asiento in elegidos" :key="asiento.id" class="chip">
             {{ asiento.id }}
           </span>
         </div>
@@ -201,12 +202,7 @@ function vaciarSeleccion() {
         </select>
 
         <label for="nombre">Nombre de quien retira *</label>
-        <input
-          id="nombre"
-          v-model.trim="cliente.nombre"
-          type="text"
-          placeholder="Tu nombre"
-        >
+        <input id="nombre" v-model.trim="cliente.nombre" type="text" placeholder="Tu nombre">
 
         <div class="resumen-linea">
           <span>Butacas ({{ cantidad }})</span>
@@ -218,19 +214,11 @@ function vaciarSeleccion() {
           <span class="precio-total">${{ total.toLocaleString('es-CL') }}</span>
         </div>
 
-        <button
-          class="btn-comprar"
-          :disabled="!puedeComprar"
-          @click="comprar"
-        >
-          {{ puedeComprar ? 'Comprar' : 'Elige butacas y escribe tu nombre' }}
+        <button class="btn-comprar" :disabled="!puedeComprar" @click="comprar">
+          {{ mensajeBoton }}
         </button>
 
-        <button
-          class="btn-vaciar"
-          :disabled="cantidad === 0"
-          @click="vaciarSeleccion"
-        >
+        <button class="btn-vaciar" :disabled="cantidad === 0" @click="vaciarSeleccion">
           Vaciar selección
         </button>
 
@@ -242,9 +230,6 @@ function vaciarSeleccion() {
           Compra lista para {{ cliente.nombre }}.
         </div>
 
-        <div v-if="!comprado" class="info">
-          💡 Al iniciar, el mapa se ve pero NADA reacciona. A medida que completes los TODO, el cine cobra vida.
-        </div>
       </aside>
     </div>
   </div>
